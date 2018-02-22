@@ -48,6 +48,10 @@ class CmlCommand extends Command {
             return message.reply(`CML returned an error: ${status}`);
         }
 
+        if (ttm == '-1') {
+            return message.util.send(`Player **${username}** not found in cml database. Try running: \`cml update ${username}\``);
+        }
+
         message.util.send(`Time till max stats for **${username}** is \`${ttm} hours\``);
     }
 
@@ -111,7 +115,6 @@ class CmlCommand extends Command {
 
 
     exec(message, args) {
-        console.log(args);
         switch (args.action) {
         case 'records':
             if (!args.player) {
