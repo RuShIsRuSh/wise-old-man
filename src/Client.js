@@ -1,6 +1,7 @@
 const { AkairoClient } = require('discord-akairo');
 const ItemsProvider = require('./ItemsProvider');
 const db = require('../db/models/index');
+const Utils = require('./Utils');
 
 module.exports = class GnomeClient extends AkairoClient {
     constructor() {
@@ -15,6 +16,7 @@ module.exports = class GnomeClient extends AkairoClient {
             disableEveryone: true
         });
 
+        this.gutils = new Utils(this);
         this.items = new ItemsProvider(db.Item);
     }
 };
