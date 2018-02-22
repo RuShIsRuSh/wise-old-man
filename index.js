@@ -7,6 +7,10 @@ const Client = require('./src/Client');
 
 const client = new Client();
 
+process.on('uncaughtException', error => {
+    winston.error(error);
+});
+
 Promise.all([
     client.items.init()
 ]).then(async () => {
