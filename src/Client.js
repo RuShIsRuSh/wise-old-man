@@ -1,5 +1,6 @@
 const { AkairoClient } = require('discord-akairo');
 const ItemsProvider = require('./ItemsProvider');
+const SettingsProvider = require('./SettingsProvider');
 const db = require('../db/models/index');
 const Utils = require('./Utils');
 
@@ -11,12 +12,23 @@ module.exports = class GnomeClient extends AkairoClient {
             listenerDirectory: './src/listeners/',
             handleEdits: false,
             defaultCooldown: 1000,
-            commandUtil: true
+            commandUtil: true,
+            prefix: message => {
+                if (message.guild) {
+                    const prefix = this.settings.get(`prefix:${message.guild.id}`, 'data', '!');
+                    if (prefix) {
+                        return prefix;
+                    }
+                }
+
+                return '!';
+            }
         }, {
             disableEveryone: true
         });
 
         this.gutils = new Utils(this);
         this.items = new ItemsProvider(db.Item);
+        this.settings = new SettingsProvider(db.Setting);
     }
 };

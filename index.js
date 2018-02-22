@@ -13,6 +13,7 @@ process.on('uncaughtException', error => {
 
 winston.info('Starting preloading'.cyan);
 Promise.all([
+    client.settings.init(),
     client.items.init()
 ]).then(async () => {
     winston.info('Preloading done'.cyan);
