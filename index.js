@@ -3,6 +3,8 @@ require('dotenv').config();
 require('colors');
 
 const winston = require('winston');
+winston.cli();
+
 const Client = require('./src/Client');
 
 const client = new Client();
@@ -14,7 +16,8 @@ process.on('uncaughtException', error => {
 winston.info('Starting preloading'.cyan);
 Promise.all([
     client.settings.init(),
-    client.items.init()
+    client.items.init(),
+    client.cluez.initialize()
 ]).then(async () => {
     winston.info('Preloading done'.cyan);
     winston.info('Attempting to log in');
