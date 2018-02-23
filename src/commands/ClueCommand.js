@@ -94,6 +94,13 @@ module.exports = class ClueCommand extends Command {
             embed.addField('Notes', result.notes);
             embed.addField('Task', result.task);
             break;
+        case 'ciphers':
+            embed.addTitle(`Cypher: ${result.cipher}`);
+            embed.setColor('#888888');
+            embed.addField('Solution', result.solution, true);
+            embed.addField('Answer', result.answer, true);
+            embed.addField('Notes', result.notes);
+            break;
         }
 
         return embed;
