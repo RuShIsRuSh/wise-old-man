@@ -30,7 +30,7 @@ module.exports = class ItemCommand extends Command {
             .setThumbnail(details.icon_large)
             .addField('Current GE price', details.current.price)
             .addField('This month\'s trend:', `${details.day30.trend} (${details.day30.change})`)
-            .addField('Members item', (details.members == 'true') ? 'Yes' : 'No')
+            .addField('Members item', details.members == 'true' ? 'Yes' : 'No')
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
             ;
         } else {
