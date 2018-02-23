@@ -29,7 +29,7 @@ module.exports = class SettingsProvider extends SequelizeProvider {
                 return Number(match[2]);
             }
             case 'boolean': {
-                return (match[2] == 'true' || match[2] == '1');
+                return match[2] == 'true' || match[2] == '1';
             }
             default: {
                 return match[2];

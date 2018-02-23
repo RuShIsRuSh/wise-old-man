@@ -46,8 +46,6 @@ module.exports = class ClueCommand extends Command {
     buildEmbed(result, resultType) {
         const embed = new RichEmbed();
 
-        console.log('Building embed for', resultType, result);
-
         switch (resultType) {
         case 'anagrams':
             embed.setTitle(`ANAGRAM: ${result.anagram}`);
