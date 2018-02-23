@@ -1,6 +1,8 @@
 const { Command } = require('discord-akairo');
 const { RichEmbed } = require('discord.js');
 const _ = require('underscore');
+const CronHandler = require('./CronHandler');
+const winston = require('winston');
 
 module.exports = class GnomeCommand extends Command {
     constructor(id, exec, options) {
@@ -16,6 +18,24 @@ module.exports = class GnomeCommand extends Command {
         this.notes = options.notes || '';
 
         this.showInHelp = typeof options.showInHelp === 'undefined' ? true : !!options.showInHelp;
+    }
+
+    build() {
+        if (this.akairoOptions.cronDirectory) {
+            winston.info('Constructing cron handler');
+            this.cronHandler = new CronHandler(this, this.akairoOptions);
+        } else {
+            winston.warn('Cron module is not set up');
+        }
+
+        super.build();
+
+        return this;
+    }
+
+    loadAll() {
+        super.loadAll();
+        if (this.cronHandler) this.cronHandler.loadAll();
     }
 
     getUsage(prefix = '!') {

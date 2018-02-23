@@ -23,7 +23,8 @@ class SettingsCommand extends Command {
             description: 'Configure various things',
             usage: [
                 'config get <setting>',
-                'config set prefix <prefix>'
+                'config set prefix <prefix>',
+                'config set twitchNotifications <channel>'
             ],
             notes: 'Can only be used by an administrator'
         });
@@ -38,6 +39,17 @@ class SettingsCommand extends Command {
 
             this.client.settings.set(message.guild, 'prefix', value);
             break;
+        case 'twitchNotifications': {
+            const channel = this.client.util.resolveChannel(value, message.guild.channels);
+
+            if (channel.type !== 'text') {
+                return message.util.reply(`:no_entry: Channel \`${channel.name}\` is not a text channel!`);
+            }
+
+            this.client.settings.set(message.guild, 'twitchNotifications', channel.id);
+
+            return message.util.reply(`:white_check_mark: Twitch notifications are now enabled for channel <#${channel.id}>`);
+        }
         default:
             return message.util.reply(`:no_entry: Setting \`${setting}\` is not recognised`);
         }
