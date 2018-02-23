@@ -1,4 +1,6 @@
 const { SequelizeProvider } = require('discord-akairo');
+const winston = require('winston');
+require('colors');
 
 module.exports = class SettingsProvider extends SequelizeProvider {
     constructor(table) {
@@ -7,11 +9,34 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         });
     }
 
-    set(guild, setting, value) {
-        return super.set(`${setting}:${guild.id}`, 'data', value);
+    async set(guild, setting, value, type = 'string') {
+        await super.set(`${setting}:${guild.id}`, 'data', `${type}:${value}`);
+        winston.info(`[${String(guild.id).cyan}] ${setting} was set to ${value}`);
     }
 
     get(guild, setting, def) {
-        return super.get(`${setting}:${guild.id}`, 'data', def);
+        const value = super.get(`${setting}:${guild.id}`, 'data');
+
+        if (!value) {
+            return def;
+        }
+
+        const match = String(value).match(/^(string|number|boolean):(.+)$/);
+
+        if (match) {
+            switch (match[1]) {
+            case 'number': {
+                return Number(match[2]);
+            }
+            case 'boolean': {
+                return (match[2] == 'true' || match[2] == '1');
+            }
+            default: {
+                return match[2];
+            }
+            }
+        }
+
+        return value;
     }
 };
