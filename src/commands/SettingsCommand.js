@@ -14,29 +14,50 @@ class SettingsCommand extends Command {
                 },
                 {
                     id: 'value',
-                    match: 'rest'
+                    match: 'rest',
+                    default: ''
                 }
-            ]
+            ],
+            userPermissions: ['ADMINISTRATOR'],
+            channelRestriction: 'guild'
         });
     }
 
     setSetting(message, setting, value) {
         switch (setting) {
         case 'prefix':
-            this.client.settings.set(`prefix:${message.guild.id}`, 'data', value);
+            if (value.length > 2) {
+                return message.util.reply(':no_entry: Prefix can\'t be longer than **2 characters**!');
+            }
+
+            this.client.settings.set(message.guild, 'prefix', value);
             break;
+        default:
+            return message.util.reply(`:no_entry: Setting \`${setting}\` is not recognised`);
         }
 
-        message.util.reply(`\`${setting}\` has been set to \`${value}\``);
+        message.util.reply(`:white_check_mark: \`${setting}\` has been set to \`${value}\``);
     }
 
     exec(message, args) {
         switch (args.op) {
-        case 'get':
+        case 'get': {
+            const value = this.client.settings.get(message.guild, args.setting, null);
+            if (value === null) {
+                return message.util.reply(`:no_entry: Setting \`${args.setting}\` does not exist in this guild`);
+            }
+
+            message.util.reply(`:white_check_mark: **${args.setting}** is set to \`${value}\``);
             break;
-        case 'set':
+        }
+        case 'set': {
             this.setSetting(message, args.setting, args.value);
             break;
+        }
+        default: {
+            message.util.reply(':no_entry: Invalid operation!');
+            break;
+        }
         }
     }
 }
