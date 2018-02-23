@@ -14,7 +14,7 @@ class WikiCommand extends Command {
                 }
             ],
             description: 'Returns related articles from Oldschool Runescape WIKI',
-            usage: 'wiki <query>'
+            usage: 'wiki <search query>'
         });
 
         this.wiki = new Wikia('oldschoolrunescape');
