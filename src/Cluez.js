@@ -103,7 +103,7 @@ module.exports = class Cluez {
         }
 
         await Promise.all(promises)
-        .then(async searchResults => {
+        .then(searchResults => {
             searchResults.forEach(res => {
                 const engine = engineOrder.shift();
                 results[engine] = res;
