@@ -11,7 +11,7 @@ module.exports = class OsrsLivestreamNotificator extends CronModule {
             tab: '*/10 * * * *'
         });
 
-        this.channel = 'runescape';
+        this.channel = 'oldschoolrs';
     }
 
     async _processGuild(guild, data) {
