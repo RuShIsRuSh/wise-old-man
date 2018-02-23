@@ -8,19 +8,32 @@ module.exports = class NewsCommand extends Command {
     constructor() {
         super('news', {
             aliases: ['news'],
-            description: 'Returns latest Oldschool Runescape news!'
+            args: [
+                {
+                    id: 'num',
+                    type: 'integer',
+                    default: 4
+                }
+            ],
+            description: 'Returns latest Oldschool Runescape news!',
+            usage: [
+                'news [number of articles]'
+            ],
+            notes: 'Returns max of 4 articles'
         });
 
         this.parser = new Parser();
         this.rss_url = 'http://services.runescape.com/m=news/latest_news.rss?oldschool=true';
     }
 
-    async exec(message) {
+    async exec(message, args) {
         const feed = await this.parser.parseURL(this.rss_url);
 
         const embeds = [];
 
-        _.first(feed.items, 4).forEach(item => {
+        const num = args.num > 4 ? 4 : args.num;
+
+        _.first(feed.items, num).forEach(item => {
             const embed = new RichEmbed();
             embed.setTitle(item.title);
             embed.setURL(item.link);
