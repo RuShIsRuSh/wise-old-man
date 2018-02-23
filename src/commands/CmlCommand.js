@@ -5,7 +5,7 @@ const request = require('request-promise');
 class CmlCommand extends Command {
     constructor() {
         super('cml', {
-            aliases: ['cml'],
+            aliases: ['cml', 'crystal'],
             args: [
                 {
                     id: 'action',
@@ -16,6 +16,12 @@ class CmlCommand extends Command {
                     id: 'player',
                     match: 'rest'
                 }
+            ],
+            description: 'All things related to [Crystal Math Labs!](http://crystalmathlabs.com)',
+            usage: [
+                'cml update <player name>',
+                'cml records <player name>',
+                'cml ttm <player name>'
             ]
         });
     }
@@ -118,7 +124,7 @@ class CmlCommand extends Command {
         switch (args.action) {
         case 'records':
             if (!args.player) {
-                return message.reply('This command requires a player name');
+                return message.util.sendEmbed(this.getUsage(message.util.prefix));
             }
 
             this.getRecords(message, args.player);

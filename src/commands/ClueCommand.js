@@ -9,9 +9,12 @@ module.exports = class ClueCommand extends Command {
             args: [
                 {
                     id: 'query',
-                    match: 'rest'
+                    match: 'rest',
+                    default: null
                 }
-            ]
+            ],
+            description: 'Helps you solve clue scrolls',
+            usage: 'clue <query>'
         });
     }
 
@@ -105,6 +108,10 @@ module.exports = class ClueCommand extends Command {
     }
 
     async exec(message, args) {
+        if (!args.query) {
+            return message.util.sendEmbed(this.getUsage(message.util.prefix));
+        }
+
         const results = await this.client.cluez.searchAll(args.query);
         const resultCount = Object.keys(results).reduce((acc, engine) => {
             return acc + results[engine].length;

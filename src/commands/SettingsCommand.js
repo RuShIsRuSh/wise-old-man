@@ -19,7 +19,13 @@ class SettingsCommand extends Command {
                 }
             ],
             userPermissions: ['ADMINISTRATOR'],
-            channelRestriction: 'guild'
+            channelRestriction: 'guild',
+            description: 'Configure various things',
+            usage: [
+                'config get <setting>',
+                'config set prefix <prefix>'
+            ],
+            notes: 'Can only be used by an administrator'
         });
     }
 

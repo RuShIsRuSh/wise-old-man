@@ -9,9 +9,12 @@ class StatsCommand extends Command {
             args: [
                 {
                     id: 'name',
-                    match: 'rest'
+                    match: 'rest',
+                    default: null
                 }
-            ]
+            ],
+            description: 'Returns hiscores for a specific player',
+            usage: 'stats <player name>'
         });
     }
 
@@ -22,6 +25,10 @@ class StatsCommand extends Command {
     }
 
     async exec(message, args) {
+        if (!args.name) {
+            return message.util.sendEmbed(this.getUsage(message.util.prefix));
+        }
+
         const skills = ['Overall', 'Attack', 'Defence', 'Strength', 'Hitpoints', 'Ranged', 'Prayer',
             'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing',
             'Mining', 'Herblore', 'Agility', 'Thieving', 'Slayer', 'Farming', 'Runecrafting', 'Hunter', 'Construction'];

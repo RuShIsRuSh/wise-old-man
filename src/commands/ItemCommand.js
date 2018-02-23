@@ -13,7 +13,9 @@ module.exports = class ItemCommand extends Command {
                     match: 'rest',
                     type: 'dynamic'
                 }
-            ]
+            ],
+            description: 'Returns GE information about a specific item',
+            usage: 'item <item name OR item id>'
         });
     }
 

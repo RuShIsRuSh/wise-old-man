@@ -9,15 +9,22 @@ class WikiCommand extends Command {
             args: [
                 {
                     id: 'query',
-                    match: 'rest'
+                    match: 'rest',
+                    default: null
                 }
-            ]
+            ],
+            description: 'Returns related articles from Oldschool Runescape WIKI',
+            usage: 'wiki <query>'
         });
 
         this.wiki = new Wikia('oldschoolrunescape');
     }
 
     async exec(message, args) {
+        if (!args.query) {
+            return message.util.sendEmbed(this.getUsage(message.util.prefix));
+        }
+
         let results;
         try {
             results = await this.wiki.getSearchList({

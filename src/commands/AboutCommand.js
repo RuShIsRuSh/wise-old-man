@@ -4,7 +4,8 @@ const { RichEmbed } = require('discord.js');
 class AboutCommand extends Command {
     constructor() {
         super('about', {
-            aliases: ['about', 'version', 'v']
+            aliases: ['about', 'version', 'v'],
+            description: 'Information about **Golden Gnome**'
         });
     }
 
