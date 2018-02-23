@@ -16,7 +16,7 @@ module.exports = class GnomeClient extends AkairoClient {
             commandUtil: true,
             prefix: message => {
                 if (message.guild) {
-                    const prefix = this.settings.get(`prefix:${message.guild.id}`, 'data', '!');
+                    const prefix = this.settings.get(message.guild, 'prefix', '!');
                     if (prefix) {
                         return prefix;
                     }
