@@ -49,6 +49,11 @@ module.exports = class ClueCommand extends Command {
     buildEmbed(result, resultType) {
         const embed = new RichEmbed();
 
+        if (result.coords) {
+            const coords = JSON.parse(result.coords);
+            embed.setImage(`http://cluez.ml/api/staticmap/${coords.lng}/${coords.lat}/300/200`);
+        }
+
         switch (resultType) {
         case 'anagrams':
             embed.setTitle(`ANAGRAM: ${result.anagram}`);
