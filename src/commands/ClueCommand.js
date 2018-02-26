@@ -51,7 +51,7 @@ module.exports = class ClueCommand extends Command {
 
         if (result.coords) {
             const coords = JSON.parse(result.coords);
-            embed.setImage(`http://cluez.ml/api/staticmap/${coords.lng}/${coords.lat}/300/200`);
+            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${coords.lng}/${coords.lat}/300/200`);
         }
 
         switch (resultType) {
