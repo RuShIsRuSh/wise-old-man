@@ -35,6 +35,19 @@ module.exports = class ItemsProvider extends SequelizeProvider {
         return this.engine;
     }
 
+    async getOsbuddyDetails(id) {
+        try {
+            const data = await request({
+                uri: `https://api.rsbuddy.com/grandExchange?a=guidePrice&i=${id}`,
+                json: true
+            });
+
+            return data;
+        } catch (e) {
+            winston.error(`Failed to retrieve osbuddy item ${id} details`);
+        }
+    }
+
     async getItemDetails(id) {
         try {
             const data = await request({

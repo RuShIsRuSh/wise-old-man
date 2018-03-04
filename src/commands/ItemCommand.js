@@ -19,7 +19,7 @@ module.exports = class ItemCommand extends Command {
         });
     }
 
-    getEmbed(details, handle) {
+    getEmbed(details, osbuddy, handle) {
         const embed = new RichEmbed();
 
         if (handle !== 'price') {
@@ -29,6 +29,8 @@ module.exports = class ItemCommand extends Command {
             .setDescription(details.description)
             .setThumbnail(details.icon_large)
             .addField('Current GE price', details.current.price)
+            .addField('Current OSBUDDY buy price', `${Number(osbuddy.buying).toLocaleString()} gp (Quantity: ${osbuddy.buyingQuantity})`, true)
+            .addField('Current OSBUDDY buy price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`, true)
             .addField('This month\'s trend:', `${details.day30.trend} (${details.day30.change})`)
             .addField('Members item', details.members == 'true' ? 'Yes' : 'No')
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
@@ -39,6 +41,8 @@ module.exports = class ItemCommand extends Command {
             .setTitle(`${details.name} *(ID: ${details.id})*`)
             .setThumbnail(details.icon)
             .addField('Current GE price', details.current.price)
+            .addField('Current OSBUDDY buy price', `${Number(osbuddy.buying).toLocaleString()} gp (Quantity: ${osbuddy.buyingQuantity})`)
+            .addField('Current OSBUDDY buy price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`)
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
             ;
         }
@@ -86,7 +90,8 @@ module.exports = class ItemCommand extends Command {
 
     async showItem(itemId, handle) {
         const item = await this.client.items.getItemDetails(itemId);
-        return this.getEmbed(item, handle);
+        const osbuddy = await this.client.items.getOsbuddyDetails(itemId);
+        return this.getEmbed(item, osbuddy, handle);
     }
 
     async exec(message, args) {
