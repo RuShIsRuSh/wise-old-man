@@ -30,7 +30,7 @@ module.exports = class ItemCommand extends Command {
             .setThumbnail(details.icon_large)
             .addField('Current GE price', details.current.price)
             .addField('Current OSBUDDY buy price', `${Number(osbuddy.buying).toLocaleString()} gp (Quantity: ${osbuddy.buyingQuantity})`, true)
-            .addField('Current OSBUDDY buy price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`, true)
+            .addField('Current OSBUDDY sell price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`, true)
             .addField('This month\'s trend:', `${details.day30.trend} (${details.day30.change})`)
             .addField('Members item', details.members == 'true' ? 'Yes' : 'No')
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
@@ -42,7 +42,7 @@ module.exports = class ItemCommand extends Command {
             .setThumbnail(details.icon)
             .addField('Current GE price', details.current.price)
             .addField('Current OSBUDDY buy price', `${Number(osbuddy.buying).toLocaleString()} gp (Quantity: ${osbuddy.buyingQuantity})`)
-            .addField('Current OSBUDDY buy price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`)
+            .addField('Current OSBUDDY sell price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`)
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
             ;
         }
