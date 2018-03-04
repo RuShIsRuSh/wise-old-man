@@ -40,92 +40,38 @@ module.exports = class Cluez {
             return winston.warn('Clue API not set. Initialisation cancelled');
         }
 
-        const anagrams = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('anagram'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/anagram`,
-                cache: this.cache,
-                cacheKey: 'anagrams',
-                ttl: this.ttl
-            }
-        });
+        this.engines = {};
 
-        const emotes = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('clue'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/emote`,
-                cache: this.cache,
-                cacheKey: 'emotes',
-                ttl: this.ttl
-            }
+        [
+            ['anagram', 'anagram'],
+            ['emote', 'clue'],
+            ['lyric', 'lyric'],
+            ['cryptic', 'clue'],
+            ['coord', 'deg'],
+            ['cipher', 'cipher'],
+            ['sherlock', 'task']
+        ].forEach(endpoint => {
+            const key = endpoint[0];
+            const token = endpoint[1];
+            this.engines[key] = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace(token),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                prefetch: {
+                    url: `${process.env.CLUE_API}/${key}`,
+                    cache: this.cache,
+                    cacheKey: key,
+                    ttl: this.ttl
+                }
+            });
         });
-
-        const lyrics = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('lyric'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/lyric`,
-                cache: this.cache,
-                cacheKey: 'lyrics',
-                ttl: this.ttl
-            }
-        });
-
-        const cryptic = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('clue'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/cryptic`,
-                cache: this.cache,
-                cacheKey: 'cryptics',
-                ttl: this.ttl
-            }
-        });
-
-        const coords = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('deg'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/coord`,
-                cache: this.cache,
-                cacheKey: 'coords',
-                ttl: this.ttl
-            }
-        });
-
-        const ciphers = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('cipher'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/cipher`,
-                cache: this.cache,
-                cacheKey: 'ciphers',
-                ttl: this.ttl
-            }
-        });
-
-        const sherlock = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('task'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: {
-                url: `${process.env.CLUE_API}/api/clues/sherlock`,
-                cache: this.cache,
-                cacheKey: 'sherlock',
-                ttl: this.ttl
-            }
-        });
-
-        this.engines = {
-            anagrams, emotes, lyrics, cryptic, coords, ciphers, sherlock
-        };
 
         const promises = [];
         for (const i in this.engines) {
             promises.push(this.engines[i].initialize());
         }
 
-        return Promise.all(promises);
+        return Promise.all(promises).catch(() => {
+            winston.error('Failed to initialize cluez module');
+        });
     }
 };

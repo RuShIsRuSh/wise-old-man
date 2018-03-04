@@ -72,7 +72,7 @@ module.exports = class ClueCommand extends Command {
             embed.setColor('#05AE0E');
             embed.addField('Clue', result.clue);
 
-            embed.addField('Required items', result.req_items.map(item => item.name).join(', '));
+            embed.addField('Required items', result.req_items.map(item => item.item.name).join(', '));
 
             if (result.wilderness) {
                 embed.setFooter('In Wilderness', 'https://i.imgur.com/iAN4kc0.png');
