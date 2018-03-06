@@ -57,7 +57,7 @@ module.exports = class Cluez {
                 datumTokenizer: Bloodhound.tokenizers.obj.whitespace(token),
                 queryTokenizer: Bloodhound.tokenizers.whitespace,
                 prefetch: {
-                    url: `${process.env.CLUE_API}/${key}`,
+                    url: `${process.env.CLUE_API}/clues/${key}`,
                     cache: this.cache,
                     cacheKey: key,
                     ttl: this.ttl

@@ -22,10 +22,12 @@ module.exports = class ItemCommand extends Command {
     getEmbed(details, osbuddy, handle) {
         const embed = new RichEmbed();
 
+        embed
+        .setColor(0x753816)
+        .setTitle(`${details.name} *(ID: ${details.id})*`);
+
         if (handle !== 'price') {
             embed
-            .setColor(0x753816)
-            .setTitle(`${details.name} *(ID: ${details.id})*`)
             .setDescription(details.description)
             .setThumbnail(details.icon_large)
             .addField('Current GE price', details.current.price)
@@ -37,14 +39,16 @@ module.exports = class ItemCommand extends Command {
             ;
         } else {
             embed
-            .setColor(0x753816)
-            .setTitle(`${details.name} *(ID: ${details.id})*`)
             .setThumbnail(details.icon)
             .addField('Current GE price', details.current.price)
             .addField('Current OSBUDDY buy price', `${Number(osbuddy.buying).toLocaleString()} gp (Quantity: ${osbuddy.buyingQuantity})`)
             .addField('Current OSBUDDY sell price', `${Number(osbuddy.selling).toLocaleString()} gp (Quantity: ${osbuddy.sellingQuantity})`)
             .setURL(`http://services.runescape.com/m=itemdb_oldschool/viewitem?obj=${details.id}`)
             ;
+        }
+
+        if (process.env.CLUE_API) {
+            embed.setImage(`${process.env.CLUE_API}/items/graph/${details.id}`);
         }
 
         return embed;
