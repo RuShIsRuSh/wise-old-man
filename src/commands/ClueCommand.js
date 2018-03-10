@@ -50,12 +50,8 @@ module.exports = class ClueCommand extends Command {
     buildEmbed(result, resultType) {
         const embed = new RichEmbed();
 
-        if (result.coords) {
-            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${result.coords.lng}/${result.coords.lat}/300/200`);
-        }
-
         switch (resultType) {
-        case 'anagrams':
+        case 'anagram':
             embed.setTitle(`ANAGRAM: ${result.anagram}`);
             embed.setColor('#3472F7');
             embed.addField('Solution', result.solution, true);
@@ -67,7 +63,7 @@ module.exports = class ClueCommand extends Command {
             }
 
             break;
-        case 'emotes':
+        case 'emote':
             embed.setTitle(`EMOTE: ${result.emote}`);
             embed.setColor('#05AE0E');
             embed.addField('Clue', result.clue);
@@ -79,13 +75,13 @@ module.exports = class ClueCommand extends Command {
             }
 
             break;
-        case 'lyrics':
+        case 'lyric':
             embed.setTitle('Falo The Bard lyrics');
             embed.setColor('#FF3B30');
             embed.addField('Lyrics', result.lyric);
             embed.addField('Required item', result.item.name);
             break;
-        case 'coords':
+        case 'coord':
             embed.setTitle(`Coordinate: ${result.deg}`);
             embed.setColor('#FF9500');
             embed.addField('Notes', result.notes);
@@ -100,13 +96,17 @@ module.exports = class ClueCommand extends Command {
             embed.addField('Notes', result.notes);
             embed.addField('Task', result.task);
             break;
-        case 'ciphers':
+        case 'cipher':
             embed.setTitle(`Cypher: ${result.cipher}`);
             embed.setColor('#888888');
             embed.addField('Solution', result.solution, true);
             embed.addField('Answer', result.answer, true);
             embed.addField('Notes', result.notes);
             break;
+        }
+
+        if (result.coords) {
+            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${result.coords.lng}/${result.coords.lat}/300/200`);
         }
 
         return embed;
@@ -134,7 +134,8 @@ module.exports = class ClueCommand extends Command {
             const type = Object.keys(results).find(engine => results[engine].length === 1);
             const result = _.first(results[type]);
 
-            return message.util.sendEmbed(this.buildEmbed(result, type));
+            const embed = this.buildEmbed(result, type);
+            return message.util.sendEmbed(embed);
         } else {
             return message.util.reply(`Sorry. Didn't find anything for \`${args.query}\``);
         }
