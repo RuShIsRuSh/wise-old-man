@@ -1,6 +1,7 @@
 const Command = require('../Command');
 const _ = require('underscore');
 const { RichEmbed } = require('discord.js');
+const winston = require('winston');
 
 module.exports = class ClueCommand extends Command {
     constructor() {
@@ -50,8 +51,7 @@ module.exports = class ClueCommand extends Command {
         const embed = new RichEmbed();
 
         if (result.coords) {
-            const coords = JSON.parse(result.coords);
-            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${coords.lng}/${coords.lat}/300/200`);
+            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${result.coords.lng}/${result.coords.lat}/300/200`);
         }
 
         switch (resultType) {
@@ -117,7 +117,15 @@ module.exports = class ClueCommand extends Command {
             return message.util.sendEmbed(this.getUsage(message.util.prefix));
         }
 
-        const results = await this.client.cluez.searchAll(args.query);
+        let results;
+
+        try {
+            results = await this.client.cluez.searchAll(args.query);
+        } catch (e) {
+            winston.error(`Failed searching for ${args.query}`);
+            return;
+        }
+
         const resultCount = Object.keys(results).reduce((acc, engine) => {
             return acc + results[engine].length;
         }, 0);
