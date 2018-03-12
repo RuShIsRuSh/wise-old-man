@@ -5,7 +5,7 @@ class AboutCommand extends Command {
     constructor() {
         super('about', {
             aliases: ['about', 'version', 'v'],
-            description: 'Information about **Golden Gnome**'
+            description: 'Information about **The Wise Old Man**'
         });
     }
 
@@ -17,8 +17,8 @@ class AboutCommand extends Command {
         }
 
         const embed = new RichEmbed();
-        embed.setTitle('Golden Gnome');
-        embed.setThumbnail('https://i.imgur.com/xyUgc9a.jpg');
+        embed.setTitle('Wise Old Man');
+        embed.setThumbnail('https://i.imgur.com/FIkB6oT.png');
         embed.setDescription(
             'placeholder'
         );
