@@ -106,7 +106,7 @@ module.exports = class ClueCommand extends Command {
         }
 
         if (result.coords) {
-            embed.setImage(`${process.env.CLUE_API}/api/staticmap/${result.coords.lng}/${result.coords.lat}/300/200`);
+            embed.setImage(`${process.env.CLUE_API}/staticmap/${result.coords.lng}/${result.coords.lat}/300/200`);
         }
 
         return embed;
