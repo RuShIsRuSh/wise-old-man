@@ -2,6 +2,7 @@ require('dotenv').config();
 require('colors');
 
 const winston = require('winston');
+winston.exitOnError = false;
 winston.cli();
 
 const Client = require('./src/Client');
