@@ -8,8 +8,8 @@ const Client = require('./src/Client');
 
 const client = new Client();
 
-process.on('uncaughtException', error => {
-    winston.error(error);
+client.on('error', e => {
+    winston.error('Client websocket error', e);
 });
 
 winston.info('Starting preloading'.cyan);
