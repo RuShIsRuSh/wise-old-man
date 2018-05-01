@@ -164,8 +164,8 @@ class CmlCommand extends Command {
                     if (this.client.gutils.skills[i].match(test)) {
                         table.addRow(
                             this.client.gutils.skills[i],
-                            this.client.gutils.formatNumberWithSign(statsXP),
-                            this.client.gutils.formatNumberWithSign(statsRank),
+                            this.client.gutils.formatNumber(statsXP),
+                            this.client.gutils.formatNumberWithSign(statsRank * -1),
                             statsEHP);
                         break;
                     }
@@ -176,8 +176,8 @@ class CmlCommand extends Command {
 
             table.addRow(
                 this.client.gutils.skills[i],
-                this.client.gutils.formatNumberWithSign(statsXP),
-                this.client.gutils.formatNumberWithSign(statsRank),
+                this.client.gutils.formatNumber(statsXP),
+                this.client.gutils.formatNumberWithSign(statsRank * -1),
                 statsEHP);
         }
 
@@ -185,7 +185,6 @@ class CmlCommand extends Command {
     }
 
     exec(message, args) {
-        console.log(args);
         switch (args.action) {
         case 'records':
             if (!args.player) {
