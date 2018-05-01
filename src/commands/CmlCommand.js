@@ -9,7 +9,7 @@ class CmlCommand extends Command {
             args: [
                 {
                     id: 'action',
-                    type: ['records', 'ttm', 'update'],
+                    type: ['records', 'ttm', 'ehp', 'update'],
                     default: 'records'
                 },
                 {
@@ -20,6 +20,7 @@ class CmlCommand extends Command {
             description: 'All things related to [Crystal Math Labs!](http://crystalmathlabs.com)',
             usage: [
                 'cml update <player name>',
+                'cml ehp <player name>',
                 'cml records <player name>',
                 'cml ttm <player name>'
             ]
@@ -30,7 +31,7 @@ class CmlCommand extends Command {
         return request(`http://crystalmathlabs.com/tracker/api.php?type=${type}&player=${encodeURIComponent(player)}`);
     }
 
-    handleReturnStatus(data) {
+    getReturnStatus(data) {
         if (!isNaN(data) && Number(data) < 0) {
             switch (data) {
             case '-1':
@@ -49,7 +50,7 @@ class CmlCommand extends Command {
 
     async getTimeTillMax(message, username) {
         const ttm = await this.callApi('ttm', username);
-        const status = this.handleReturnStatus(ttm);
+        const status = this.getReturnStatus(ttm);
         if (status) {
             return message.reply(`CML returned an error: ${status}`);
         }
@@ -63,7 +64,7 @@ class CmlCommand extends Command {
 
     async update(message, username) {
         const response = await this.callApi('update', username);
-        const status = this.handleReturnStatus(response);
+        const status = this.getReturnStatus(response);
 
         if (status) {
             return message.reply(`CML returned an error: ${status}`);
@@ -88,7 +89,7 @@ class CmlCommand extends Command {
     async getRecords(message, username, showSkills) {
         let stats = await this.callApi('recordsofplayer', username);
 
-        const status = this.handleReturnStatus(stats);
+        const status = this.getReturnStatus(stats);
         if (status) {
             return message.reply(`CML returned an error: ${status}`);
         }
@@ -119,6 +120,33 @@ class CmlCommand extends Command {
         message.util.send(`\`${table.toString()}\``);
     }
 
+    async getEhp(message, username) {
+        let stats = await this.callApi('trackehp', username);
+
+        const status = this.getReturnStatus(stats);
+        if (status) {
+            return message.reply(`CML returned an error: ${status}`);
+        }
+
+        stats = stats.split(/[ \n]/g);
+
+        const lastUpdated = stats.shift();
+
+        const table = new AsciiTable(`CML EHP for ${username}`);
+        table.setHeading('Skill', 'XP', 'Rank', 'EHP');
+
+        for (const i in this.client.gutils.skills) {
+            const [statsXP, statsRank, _statsXPLatest, _statsRankLatest, statsEHP] = stats[i].split(',');
+
+            table.addRow(
+                this.client.gutils.skills[i],
+                this.client.gutils.formatNumberWithSign(statsXP),
+                this.client.gutils.formatNumberWithSign(statsRank),
+                statsEHP);
+        }
+
+        message.util.send(`\`${table.toString()}\`\n\n*(Last updated ${lastUpdated} seconds ago)*`);
+    }
 
     exec(message, args) {
         switch (args.action) {
@@ -134,6 +162,9 @@ class CmlCommand extends Command {
             break;
         case 'update':
             this.update(message, args.player);
+            break;
+        case 'ehp':
+            this.getEhp(message, args.player);
             break;
         }
     }
