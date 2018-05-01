@@ -24,7 +24,7 @@ class SettingsCommand extends Command {
             usage: [
                 'config get <setting>',
                 'config set prefix <prefix>',
-                'config set twitchNotifications <channel>'
+                'config set twitchNotifications <discord_text_channel>'
             ],
             notes: 'Can only be used by an administrator'
         });
