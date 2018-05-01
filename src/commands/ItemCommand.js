@@ -1,5 +1,6 @@
 const Command = require('../Command');
 const AsciiTable = require('ascii-table');
+const moment = require('moment');
 const { RichEmbed } = require('discord.js');
 const _ = require('underscore');
 
@@ -48,7 +49,8 @@ module.exports = class ItemCommand extends Command {
         }
 
         if (process.env.CLUE_API) {
-            embed.setImage(`${process.env.CLUE_API}/items/graph/${details.id}`);
+            const date = moment().format('DDMMYYYY');
+            embed.setImage(`${process.env.CLUE_API}/items/graph/${details.id}/?x=${date}`);
         }
 
         return embed;
