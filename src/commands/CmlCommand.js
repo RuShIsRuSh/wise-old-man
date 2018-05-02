@@ -20,20 +20,29 @@ class CmlCommand extends Command {
                     id: 'skills',
                     match: 'prefix',
                     prefix: ['-skill=', '--skill=', '-skills=', '--skills=', '-s=', '--s=']
+                },
+                {
+                    id: 'time',
+                    match: 'prefix',
+                    prefix: ['-time', '--time=', '-t=', '--t='],
+                    default: 'week'
                 }
             ],
             description: 'All things related to [Crystal Math Labs!](http://crystalmathlabs.com)',
             usage: [
                 'cml update <player name>',
-                'cml ehp <player name> --s=slayer,attack',
-                'cml records <player name> --s=slayer,attack',
+                'cml ehp <player name> -s=<fishing,slayer...> -t=<day|week|year|all|20d|number_in_seconds>',
+                'cml records <player name> -s=<attack,strength,defence...>',
                 'cml ttm <player name>'
             ]
         });
     }
 
-    callApi(type, player) {
-        return request(`http://crystalmathlabs.com/tracker/api.php?type=${type}&player=${encodeURIComponent(player)}`);
+    callApi(type, player, additional = '') {
+        return request({
+            uri: `http://crystalmathlabs.com/tracker/api.php?type=${type}&player=${encodeURIComponent(player)}${additional}`,
+            simple: false
+        });
     }
 
     getReturnStatus(data) {
@@ -58,11 +67,32 @@ class CmlCommand extends Command {
         return null;
     }
 
+    getTime(arg) {
+        switch (arg) {
+        case 'day':
+            return '1d';
+        case 'week':
+            return '7d';
+        case 'month':
+            return '31d';
+        case 'year':
+            return '365d';
+        case 'all':
+            return 'all';
+        default:
+            if (!isNaN(arg) || arg.match(/[0-9]{1,5}d/g)) {
+                return arg;
+            }
+
+            return null;
+        }
+    }
+
     async getTimeTillMax(message, username) {
         const ttm = await this.callApi('ttm', username);
         const status = this.getReturnStatus(ttm);
         if (status) {
-            return message.reply(`CML returned an error: ${status}`);
+            return message.util.reply(`CML returned an error: ${status}`);
         }
 
         if (ttm == '-1') {
@@ -77,22 +107,22 @@ class CmlCommand extends Command {
         const status = this.getReturnStatus(response);
 
         if (status) {
-            return message.reply(`CML returned an error: ${status}`);
+            return message.util.reply(`CML returned an error: ${status}`);
         }
 
         switch (parseInt(response)) {
         case 1:
-            return message.channel.send(`Successfully updated \`${username}\``);
+            return message.util.send(`Successfully updated \`${username}\``);
         case 2:
-            return message.channel.send(`Player \`${username}\` was not found on RuneScape hiscores`);
+            return message.util.send(`Player \`${username}\` was not found on RuneScape hiscores`);
         case 3:
-            return message.channel.send('Error: Negative XP gain detected');
+            return message.util.send('Error: Negative XP gain detected');
         case 4:
-            return message.channel.send('Error: Unknown');
+            return message.util.send('Error: Unknown');
         case 5:
-            return message.channel.send(`Player \`${username}\` has already been updated within the last 30 seconds`);
+            return message.util.send(`Player \`${username}\` has already been updated within the last 30 seconds`);
         case 6:
-            return message.channel.send(`Error: Player name \`${username}\` is invalid`);
+            return message.util.send(`Error: Player name \`${username}\` is invalid`);
         }
     }
 
@@ -101,7 +131,7 @@ class CmlCommand extends Command {
 
         const status = this.getReturnStatus(stats);
         if (status) {
-            return message.reply(`CML returned an error: ${status}`);
+            return message.util.reply(`CML returned an error: ${status}`);
         }
 
         stats = stats.split(/[ \n]/g);
@@ -110,33 +140,36 @@ class CmlCommand extends Command {
             skills = skills.split(/[,; ]/g);
         }
 
+        if (skills.length <= 0) {
+            return message.util.reply('Invalid skills filter!');
+        }
+
         const table = new AsciiTable(`CML Experience records for ${username}`);
         table.setHeading('Skill', 'Day', 'Week', 'Month');
 
-        for (const i in this.client.gutils.skills) {
-            const [dayRecord, _dayRecordTime, weekRecord, _weekRecordTime, monthRecord, _monthRecordTime] = stats[i].split(',');
-
-            if (skills) {
-                for (const s of skills) {
-                    const test = new RegExp(s, 'i');
-
-                    if (this.client.gutils.skills[i].match(test)) {
-                        table.addRow(this.client.gutils.skills[i], Number(dayRecord).toLocaleString(), Number(weekRecord).toLocaleString(), Number(monthRecord).toLocaleString());
-                        break;
-                    }
-                }
-
-                continue;
-            }
-
-            table.addRow(this.client.gutils.skills[i], Number(dayRecord).toLocaleString(), Number(weekRecord).toLocaleString(), Number(monthRecord).toLocaleString());
-        }
+        this.client.gutils.findSkills(skills).forEach(skill => {
+            const [skillName, skillId] = skill;
+            const [dayRecord, _dayRecordTime, weekRecord, _weekRecordTime, monthRecord, _monthRecordTime] = stats[skillId].split(',');
+            table.addRow(skillName, Number(dayRecord).toLocaleString(), Number(weekRecord).toLocaleString(), Number(monthRecord).toLocaleString());
+        });
 
         message.util.send(`\`${table.toString()}\``);
     }
 
-    async getEhp(message, username, skills) {
-        let stats = await this.callApi('trackehp', username);
+    async getEhp(message, username, skills, time) {
+        let timeStr = '';
+        let timeFooter = 'Time period: week';
+
+        if (time) {
+            if (this.getTime(time)) {
+                timeFooter = `Time period: ${this.getTime(time)}`;
+                timeStr = `&time=${this.getTime(time)}`;
+            } else {
+                timeFooter = 'Invalid time period. Falling back to: week';
+            }
+        }
+
+        let stats = await this.callApi('trackehp', username, timeStr);
 
         const status = this.getReturnStatus(stats);
         if (status) {
@@ -149,39 +182,26 @@ class CmlCommand extends Command {
             skills = skills.split(/[,; ]/g);
         }
 
+        if (skills.length <= 0) {
+            return message.util.reply('Invalid skills filter!');
+        }
+
         const lastUpdated = stats.shift();
 
         const table = new AsciiTable(`CML EHP for ${username}`);
         table.setHeading('Skill', 'XP', 'Rank', 'EHP');
 
-        for (const i in this.client.gutils.skills) {
-            const [statsXP, statsRank, _statsXPLatest, _statsRankLatest, statsEHP] = stats[i].split(',');
-
-            if (skills) {
-                for (const s of skills) {
-                    const test = new RegExp(s, 'i');
-
-                    if (this.client.gutils.skills[i].match(test)) {
-                        table.addRow(
-                            this.client.gutils.skills[i],
-                            this.client.gutils.formatNumber(statsXP),
-                            this.client.gutils.formatNumberWithSign(statsRank * -1),
-                            statsEHP);
-                        break;
-                    }
-                }
-
-                continue;
-            }
-
+        this.client.gutils.findSkills(skills).forEach(skill => {
+            const [skillName, skillId] = skill;
+            const [statsXP, statsRank, _statsXPLatest, _statsRankLatest, statsEHP] = stats[skillId].split(',');
             table.addRow(
-                this.client.gutils.skills[i],
+                skillName,
                 this.client.gutils.formatNumber(statsXP),
                 this.client.gutils.formatNumberWithSign(statsRank * -1),
                 statsEHP);
-        }
+        });
 
-        message.util.send(`\`${table.toString()}\`\n\n*(Last updated ${lastUpdated} seconds ago)*`);
+        message.util.send(`\`${table.toString()}\`\n\n*(Last updated ${lastUpdated} seconds ago)*\n(*${timeFooter}*)`);
     }
 
     exec(message, args) {
@@ -200,7 +220,7 @@ class CmlCommand extends Command {
             this.update(message, args.player);
             break;
         case 'ehp':
-            this.getEhp(message, args.player, args.skills);
+            this.getEhp(message, args.player, args.skills, args.time);
             break;
         }
     }

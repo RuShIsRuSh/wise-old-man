@@ -11,6 +11,11 @@ class StatsCommand extends Command {
                     id: 'name',
                     match: 'rest',
                     default: null
+                },
+                {
+                    id: 'skills',
+                    match: 'prefix',
+                    prefix: ['-skill=', '--skill=', '-skills=', '--skills=', '-s=', '--s=']
                 }
             ],
             description: 'Returns hiscores for a specific player',
@@ -29,10 +34,6 @@ class StatsCommand extends Command {
             return message.util.sendEmbed(this.getUsage(message.util.prefix));
         }
 
-        const skills = ['Overall', 'Attack', 'Defence', 'Strength', 'Hitpoints', 'Ranged', 'Prayer',
-            'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing',
-            'Mining', 'Herblore', 'Agility', 'Thieving', 'Slayer', 'Farming', 'Runecrafting', 'Hunter', 'Construction'];
-
         let data;
 
         try {
@@ -42,14 +43,24 @@ class StatsCommand extends Command {
         }
 
         const stats = data.split(/[ \n]/g);
+        let skills = args.skills;
+
+        if (skills && !Array.isArray(skills)) {
+            skills = skills.split(/[,; ]/g);
+
+            if (skills.length <= 0) {
+                return message.util.reply('Invalid skills filter!');
+            }
+        }
 
         const table = new AsciiTable(`Hiscores for ${args.name}`);
         table.setHeading('Skill', 'Rank', 'Level', 'XP');
 
-        for (const i in skills) {
-            const [rank, level, xp] = stats[i].split(',');
-            table.addRow(skills[i], Number(rank).toLocaleString(), level, Number(xp).toLocaleString());
-        }
+        this.client.gutils.findSkills(skills).forEach(skill => {
+            const [skillName, skillId] = skill;
+            const [rank, level, xp] = stats[skillId].split(',');
+            table.addRow(skillName, Number(rank).toLocaleString(), level, Number(xp).toLocaleString());
+        });
 
         message.util.send(`\`${table.toString()}\``);
     }
