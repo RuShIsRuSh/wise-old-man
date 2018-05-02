@@ -39,7 +39,7 @@ module.exports = class OsrsLivestreamNotificator extends CronModule {
             embed.setURL(data.stream.channel.url);
             embed.addField('Viewers', data.stream.viewers);
             embed.setImage(`${data.stream.preview.medium}?t=${date}`);
-            embed.setFooter('Twitch.tv', 'https://i.imgur.com/g73ugRg.png');
+            embed.setFooter('twitch.tv/oldschoolrs', 'https://i.imgur.com/g73ugRg.png');
             embed.setColor('#6441A4');
 
             await guildChannel.send(`Hey @everyone! Oldschool Runescape is now live on twitch @ https://www.twitch.tv/${this.channel}`, {
