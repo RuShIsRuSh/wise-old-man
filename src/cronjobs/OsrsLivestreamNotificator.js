@@ -4,6 +4,7 @@ const { RichEmbed } = require('discord.js');
 const winston = require('winston');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const moment = require('moment');
 
 module.exports = class OsrsLivestreamNotificator extends CronModule {
     constructor() {
@@ -29,13 +30,15 @@ module.exports = class OsrsLivestreamNotificator extends CronModule {
                 this.client.settings.set(guild, 'twitchLastNotified', data.stream.created_at);
             }
 
+            const date = moment().format('DDMMYYYY');
+
             const embed = new RichEmbed();
             embed.setAuthor(data.stream.channel.display_name, data.stream.channel.logo);
             embed.setThumbnail(data.stream.channel.logo);
             embed.setTitle(data.stream.channel.status);
             embed.setURL(data.stream.channel.url);
             embed.addField('Viewers', data.stream.viewers);
-            embed.setImage(data.stream.preview.medium);
+            embed.setImage(`${data.stream.preview.medium}?t=${date}`);
             embed.setFooter('Twitch.tv', 'https://i.imgur.com/g73ugRg.png');
             embed.setColor('#6441A4');
 
