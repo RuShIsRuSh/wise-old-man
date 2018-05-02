@@ -1,6 +1,7 @@
 const Command = require('../Command');
 const AsciiTable = require('ascii-table');
 const request = require('request-promise');
+const { findSkills } = require('../Utils');
 
 class StatsCommand extends Command {
     constructor() {
@@ -56,7 +57,7 @@ class StatsCommand extends Command {
         const table = new AsciiTable(`Hiscores for ${args.name}`);
         table.setHeading('Skill', 'Rank', 'Level', 'XP');
 
-        this.client.gutils.findSkills(skills).forEach(skill => {
+        findSkills(skills).forEach(skill => {
             const [skillName, skillId] = skill;
             const [rank, level, xp] = stats[skillId].split(',');
             table.addRow(skillName, Number(rank).toLocaleString(), level, Number(xp).toLocaleString());

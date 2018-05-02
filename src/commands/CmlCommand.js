@@ -1,6 +1,7 @@
 const Command = require('../Command');
 const AsciiTable = require('ascii-table');
 const request = require('request-promise');
+const { findSkills, formatNumber, formatNumberWithSign, secondsToReadable } = require('../Utils');
 
 class CmlCommand extends Command {
     constructor() {
@@ -147,7 +148,7 @@ class CmlCommand extends Command {
         const table = new AsciiTable(`CML Experience records for ${username}`);
         table.setHeading('Skill', 'Day', 'Week', 'Month');
 
-        this.client.gutils.findSkills(skills).forEach(skill => {
+        findSkills(skills).forEach(skill => {
             const [skillName, skillId] = skill;
             const [dayRecord, _dayRecordTime, weekRecord, _weekRecordTime, monthRecord, _monthRecordTime] = stats[skillId].split(',');
             table.addRow(skillName, Number(dayRecord).toLocaleString(), Number(weekRecord).toLocaleString(), Number(monthRecord).toLocaleString());
@@ -178,12 +179,12 @@ class CmlCommand extends Command {
 
         stats = stats.split(/[ \n]/g);
 
-        if (!Array.isArray(skills)) {
+        if (skills && !Array.isArray(skills)) {
             skills = skills.split(/[,; ]/g);
-        }
 
-        if (skills.length <= 0) {
-            return message.util.reply('Invalid skills filter!');
+            if (skills.length <= 0) {
+                return message.util.reply('Invalid skills filter!');
+            }
         }
 
         const lastUpdated = stats.shift();
@@ -191,17 +192,17 @@ class CmlCommand extends Command {
         const table = new AsciiTable(`CML EHP for ${username}`);
         table.setHeading('Skill', 'XP', 'Rank', 'EHP');
 
-        this.client.gutils.findSkills(skills).forEach(skill => {
+        findSkills(skills).forEach(skill => {
             const [skillName, skillId] = skill;
             const [statsXP, statsRank, _statsXPLatest, _statsRankLatest, statsEHP] = stats[skillId].split(',');
             table.addRow(
                 skillName,
-                this.client.gutils.formatNumber(statsXP),
-                this.client.gutils.formatNumberWithSign(statsRank * -1),
+                formatNumber(statsXP),
+                formatNumberWithSign(statsRank * -1),
                 statsEHP);
         });
 
-        message.util.send(`\`${table.toString()}\`\n\n*(Last updated ${lastUpdated} seconds ago)*\n(*${timeFooter}*)`);
+        message.util.send(`\`${table.toString()}\`\n\n*(Last updated ${secondsToReadable(lastUpdated)})*\n(*${timeFooter}*)`);
     }
 
     exec(message, args) {
