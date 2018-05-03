@@ -89,8 +89,9 @@ class PollCommand extends Command {
 
         const embed = new RichEmbed();
         embed.setTitle(poll.title);
-        // embed.setTimestamp(moment(poll.date).format());
+        embed.setTimestamp(new Date(poll.date));
         embed.setURL(`http://services.runescape.com/m=poll/oldschool/results.ws?id=${poll.id}`);
+        embed.setFooter(poll.title);
         poll.questions.forEach(question => {
             embed.addField(
                 `**${truncate(first(question.text.split('?')), {length: 250})}?**`,
