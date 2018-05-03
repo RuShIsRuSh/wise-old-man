@@ -7,7 +7,7 @@ class SettingsCommand extends Command {
             args: [
                 {
                     id: 'op',
-                    types: ['get', 'set']
+                    types: ['get', 'set', 'clear']
                 },
                 {
                     id: 'setting'
@@ -23,7 +23,9 @@ class SettingsCommand extends Command {
             description: 'Configure various things',
             usage: [
                 'config get <setting>',
+                'config clear <setting>',
                 'config set prefix <prefix>',
+                'config set channel <discord_text_channel>',
                 'config set twitchNotifications <discord_text_channel>'
             ],
             notes: 'Can only be used by an administrator'
@@ -39,6 +41,15 @@ class SettingsCommand extends Command {
 
             this.client.settings.set(message.guild, 'prefix', value);
             break;
+        case 'channel':
+            const channel = this.client.util.resolveChannel(value, message.guild.channels);
+            if (channel.type !== 'text') {
+                return message.util.reply(`:no_entry: Channel \`${channel.name}\` is not a text channel!`);
+            }
+
+            this.client.settings.set(message.guild, 'channel', channel.id);
+
+            return message.util.reply(`:white_check_mark: I'm now restricted to only <#${channel.id}>`);
         case 'twitchNotifications': {
             const channel = this.client.util.resolveChannel(value, message.guild.channels);
 
@@ -72,8 +83,18 @@ class SettingsCommand extends Command {
             this.setSetting(message, args.setting, args.value);
             break;
         }
+        case 'clear': {
+            const value = this.client.settings.get(message.guild, args.setting, null);
+            if (value === null) {
+                return message.util.reply(`:no_entry: Setting \`${args.setting}\` does not exist in this guild`);
+            }
+
+            this.client.settings.clear(message.guild, args.setting);
+            message.util.reply(`:white_check_mark: Setting **${args.setting}** is cleared`);
+            break;
+        }
         default: {
-            message.util.reply(':no_entry: Invalid operation!');
+            message.util.sendEmbed(this.getUsage(message.util.prefix));
             break;
         }
         }
