@@ -1,6 +1,6 @@
 const { Command } = require('discord-akairo');
 const { RichEmbed } = require('discord.js');
-const _ = require('underscore');
+const _ = require('lodash');
 const CronHandler = require('./CronHandler');
 const winston = require('winston');
 

@@ -1,7 +1,7 @@
 const Command = require('../Command');
 const Parser = require('rss-parser');
 const { RichEmbed } = require('discord.js');
-const _ = require('underscore');
+const { first } = require('lodash');
 const moment = require('moment');
 
 module.exports = class NewsCommand extends Command {
@@ -33,7 +33,7 @@ module.exports = class NewsCommand extends Command {
 
         const num = args.num > 4 ? 4 : args.num;
 
-        _.first(feed.items, num).forEach(item => {
+        first(feed.items, num).forEach(item => {
             const embed = new RichEmbed();
             embed.setTitle(item.title);
             embed.setURL(item.link);

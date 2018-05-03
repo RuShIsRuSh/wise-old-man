@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const _ = require('underscore');
+const { first } = require('lodash');
 const { RichEmbed } = require('discord.js');
 const winston = require('winston');
 
@@ -133,7 +133,7 @@ module.exports = class ClueCommand extends Command {
 
         if (resultCount == 1) {
             const type = Object.keys(results).find(engine => results[engine].length === 1);
-            const result = _.first(results[type]);
+            const result = first(results[type]);
 
             const embed = this.buildEmbed(result, type);
             return message.util.sendEmbed(embed);

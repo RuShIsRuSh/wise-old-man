@@ -2,7 +2,7 @@ const Command = require('../Command');
 const AsciiTable = require('ascii-table');
 const moment = require('moment');
 const { RichEmbed } = require('discord.js');
-const _ = require('underscore');
+const { first } = require('lodash');
 
 module.exports = class ItemCommand extends Command {
     constructor() {
@@ -86,7 +86,7 @@ module.exports = class ItemCommand extends Command {
                 return message.util.sendEmbed(this.showItems(results));
             }
 
-            const item = _.first(results.rows);
+            const item = first(results.rows);
 
             this.showItem(item.id, handle).then(embed => {
                 message.util.sendEmbed(embed);

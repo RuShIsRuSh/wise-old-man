@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const _ = require('underscore');
+const { first } = require('lodash');
 
 module.exports = class HelpCommand extends Command {
     constructor() {
@@ -22,7 +22,7 @@ module.exports = class HelpCommand extends Command {
             return message.util.sendEmbed(args.command.getUsage(message.util.prefix));
         } else {
             const command_list = this.client.commandHandler.modules.array().filter(command => command.showInHelp && !command.ownerOnly).map(command => {
-                return `\`${_.first(command.aliases)}\``;
+                return `\`${first(command.aliases)}\``;
             });
 
             return message.util.sendEmbed(this.getUsage(message.util.prefix), `List of commands: ${command_list.join(', ')}`);

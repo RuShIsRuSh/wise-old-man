@@ -3,7 +3,7 @@ const { SequelizeProvider } = require('discord-akairo');
 const Bloodhound = require('bloodhound-js');
 const request = require('request-promise');
 const winston = require('winston');
-const _ = require('underscore');
+const { first } = require('lodash');
 
 module.exports = class ItemsProvider extends SequelizeProvider {
     constructor(table, options) {
@@ -102,7 +102,7 @@ module.exports = class ItemsProvider extends SequelizeProvider {
         } else {
             item = await this.table.find({
                 where: {
-                    id: _.first(ids)
+                    id: first(ids)
                 }
             });
         }
