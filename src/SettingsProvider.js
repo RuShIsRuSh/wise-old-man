@@ -14,6 +14,10 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         winston.info(`[${String(guild.id).cyan}] ${setting} was set to ${value}`);
     }
 
+    clear(guild, setting) {
+        super.clear(`${setting}:${guild.id}`);
+    }
+
     get(guild, setting, def) {
         const value = super.get(`${setting}:${guild.id}`, 'data');
 
