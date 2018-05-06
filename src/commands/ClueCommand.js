@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const { first } = require('lodash');
+const { first, isObject, isString } = require('lodash');
 const { RichEmbed } = require('discord.js');
 const winston = require('winston');
 
@@ -52,62 +52,59 @@ module.exports = class ClueCommand extends Command {
 
         switch (resultType) {
         case 'anagram':
-            embed.setTitle(`ANAGRAM: ${result.anagram}`);
+            embed.setTitle(`ANAGRAM: ${result.text.split(': ')[1]}`);
+            embed.setDescription(result.text);
             embed.setColor('#3472F7');
-            embed.addField('Solution', result.solution, true);
-            embed.addField('Answer', this._getAnagramAnswer(result), true);
-            if (result.wilderness) {
-                embed.setFooter(`Location: ${result.location} - In Wilderness`, 'https://i.imgur.com/iAN4kc0.png');
-            } else {
-                embed.setFooter(`Location: ${result.location}`, 'https://i.imgur.com/yN1ypDq.png');
-            }
-
+            embed.addField('Solution', result.npc, true);
+            embed.addField('Answer', result.answer, true);
+            embed.setFooter(`Area: ${result.area}`);
             break;
         case 'emote':
-            embed.setTitle(`EMOTE: ${result.emote}`);
+            embed.setTitle(`EMOTE: ${result.firstEmote.name}`);
             embed.setColor('#05AE0E');
-            embed.addField('Clue', result.clue);
+            embed.setThumbnail(`${process.env.CLUE_API}/sprites/${result.firstEmote.spriteId}-0.png`)
+            embed.addField('Clue', result.text);
 
-            embed.addField('Required items', result.req_items.map(item => item.item.name).join(', '));
+            if (result.itemRequirements) {
+                embed.addField('Required items', result.itemRequirements.map(item => {
+                    if (isObject(item)) {
+                        return item.name;
+                    }
 
-            if (result.wilderness) {
-                embed.setFooter('In Wilderness', 'https://i.imgur.com/iAN4kc0.png');
+                    if (isString(item)) {
+                        return item;
+                    }
+
+                    return '';
+                }).join(', '));
             }
 
-            break;
-        case 'lyric':
-            embed.setTitle('Falo The Bard lyrics');
-            embed.setColor('#FF3B30');
-            embed.addField('Lyrics', result.lyric);
-            embed.addField('Required item', result.item.name);
-            break;
-        case 'coord':
-            embed.setTitle(`Coordinate: ${result.deg}`);
-            embed.setColor('#FF9500');
-            embed.addField('Notes', result.notes);
-            if (result.fight) {
-                embed.addField('Enemies', result.enemies.map(enemy => enemy.enemy_name).join(', '));
-            }
             break;
         case 'cryptic':
-            embed.setTitle('Cypric clue');
+            embed.setTitle('CRYPTIC CLUE');
             embed.setColor('#2CA8FF');
-            embed.addField('Clue', result.clue);
-            embed.addField('Notes', result.notes);
-            embed.addField('Task', result.task);
+            embed.addField('Clue', result.text);
+            embed.addField('Solution', result.solution);
+
+            if (result.npc) {
+                embed.addField('Task', `Speak to ${result.npc}`);
+            } else if (result.object) {
+                embed.addField('Task', `Search ${result.object.name}`);
+            }
             break;
         case 'cipher':
-            embed.setTitle(`Cypher: ${result.cipher}`);
+            embed.setTitle(`CYPHER: ${result.text.split(': ')[1]}`);
+            embed.setDescription(result.text);
             embed.setColor('#888888');
-            embed.addField('Solution', result.solution, true);
+            embed.addField('Solution', result.npc, true);
             embed.addField('Answer', result.answer, true);
-            embed.addField('Notes', result.notes);
+            embed.setFooter(`Area: ${result.area}`);
             break;
         }
 
-        if (result.coords) {
-            const map = result.coords.map ? result.coords.map : 'gielinor';
-            embed.setImage(`${process.env.CLUE_API}/staticmap/${result.coords.lng}/${result.coords.lat}/300/200/${map}`);
+        if (result.location) {
+            const [x, y] = result.location;
+            embed.setImage(`${process.env.CLUE_API}/maplocation/${x}/${y}`);
         }
 
         return embed;
@@ -137,6 +134,8 @@ module.exports = class ClueCommand extends Command {
 
             const embed = this.buildEmbed(result, type);
             return message.util.sendEmbed(embed);
+        } else if (resultCount > 1) {
+            return message.util.reply(`More than 1 result`);
         } else {
             return message.util.reply(`Sorry. Didn't find anything for \`${args.query}\``);
         }

@@ -4,7 +4,7 @@ const winston = require('winston');
 module.exports = class Cluez {
     constructor() {
         this.cache = false;
-        this.ttl = 300000;
+        this.ttl = 30000;
         this.engines = {};
     }
 
@@ -35,6 +35,27 @@ module.exports = class Cluez {
         return results;
     }
 
+    getTokenizers(endpoint) {
+        let tokenizers = {
+            datum: Bloodhound.tokenizers.obj.whitespace('text'),
+            query: Bloodhound.tokenizers.whitespace
+        };
+
+        switch (endpoint) {
+        case 'cipher':
+        case 'anagram': {
+            tokenizers.datum = function(datum) {
+                const [_text, anagram] = datum.text.split(': ');
+                let parts = anagram.toLowerCase().split(' ');
+                return parts;
+            };
+            break;
+        }
+        }
+
+        return tokenizers;
+    }
+
     initialize() {
         if (!process.env.CLUE_API) {
             return winston.warn('Clue API not set. Initialisation cancelled');
@@ -43,23 +64,21 @@ module.exports = class Cluez {
         this.engines = {};
 
         [
-            ['anagram', 'anagram'],
-            ['emote', 'clue'],
-            ['lyric', 'lyric'],
-            ['cryptic', 'clue'],
-            ['coord', 'deg'],
-            ['cipher', 'cipher'],
-            ['sherlock', 'task']
+            'anagram',
+            'emote',
+            'cryptic',
+            'cipher',
+            'fairyRing'
         ].forEach(endpoint => {
-            const key = endpoint[0];
-            const token = endpoint[1];
-            this.engines[key] = new Bloodhound({
-                datumTokenizer: Bloodhound.tokenizers.obj.whitespace(token),
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
+            const tokenizers = this.getTokenizers(endpoint);
+            console.log(`${process.env.CLUE_API}/clues/${endpoint}`);
+            this.engines[endpoint] = new Bloodhound({
+                datumTokenizer: tokenizers.datum,
+                queryTokenizer: tokenizers.query,
                 prefetch: {
-                    url: `${process.env.CLUE_API}/clues/${key}`,
+                    url: `${process.env.CLUE_API}/clues/${endpoint}`,
                     cache: this.cache,
-                    cacheKey: key,
+                    cacheKey: endpoint,
                     ttl: this.ttl
                 }
             });
