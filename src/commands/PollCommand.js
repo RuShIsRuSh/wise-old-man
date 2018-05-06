@@ -91,7 +91,7 @@ class PollCommand extends Command {
         embed.setTitle(poll.title);
         embed.setTimestamp(new Date(poll.date));
         embed.setURL(`http://services.runescape.com/m=poll/oldschool/results.ws?id=${poll.id}`);
-        embed.setFooter(poll.title);
+        embed.setFooter(`Total votes: ${poll.votes}`);
         poll.questions.forEach(question => {
             embed.addField(
                 `**${truncate(first(question.text.split('?')), {length: 250})}?**`,
