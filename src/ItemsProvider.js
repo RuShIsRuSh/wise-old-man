@@ -3,7 +3,8 @@ const { SequelizeProvider } = require('discord-akairo');
 const Bloodhound = require('bloodhound-js');
 const request = require('request-promise');
 const winston = require('winston');
-const { first } = require('lodash');
+const { first, compact, isArray, flattenDeep } = require('lodash');
+const { acronyms, replacements } = require('./item_acronyms');
 
 module.exports = class ItemsProvider extends SequelizeProvider {
     constructor(table, options) {
@@ -20,14 +21,52 @@ module.exports = class ItemsProvider extends SequelizeProvider {
         const dict = this.items.map(item => {
             return {
                 id: item.id,
-                query: item.query
+                name: item.name,
+                acronym: false
             };
         });
 
+        for (const id in acronyms) {
+            acronyms[id].forEach(acronym => {
+                dict.push({
+                    id,
+                    name: acronym,
+                    acronym: true
+                });
+            });
+        }
+
+        // Query - Item being searched
+        const queryTokenizer = query => {
+            let parts = String(query).toLowerCase().split(/[^a-z0-9\+]/gi);
+
+            parts = parts.map(part => {
+                if (part in replacements) {
+                    return queryTokenizer(replacements[part]);
+                }
+                
+                return part;
+            });
+
+            parts = flattenDeep(parts);
+            parts = compact(parts);
+            
+            console.log(parts);
+            return parts;
+        };
+
+        // Datums - Items being searched through
+        const datumTokenizer = datum => {
+            let parts = String(datum.name).toLowerCase();
+            parts = parts.split(/[^a-z0-9\+]/gi);
+            parts = compact(parts);
+            return parts;
+        };
+
         this.engine = new Bloodhound({
             local: dict,
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('query')
+            queryTokenizer: queryTokenizer,
+            datumTokenizer: datumTokenizer
         });
 
         await this.engine.initialize();
