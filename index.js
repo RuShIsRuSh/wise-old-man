@@ -17,6 +17,7 @@ winston.info('Starting preloading'.cyan);
 Promise.all([
     client.settings.init(),
     client.items.init(),
+    client.links.init(),
     client.cluez.initialize()
 ]).then(async () => {
     winston.info('Preloading done'.cyan);

@@ -1,4 +1,4 @@
-const { AkairoClient } = require('discord-akairo');
+const { AkairoClient, SequelizeProvider } = require('discord-akairo');
 const ItemsProvider = require('./ItemsProvider');
 const SettingsProvider = require('./SettingsProvider');
 const Cluez = require('./Cluez');
@@ -28,6 +28,9 @@ module.exports = class GnomeClient extends AkairoClient {
             }
         });
 
+        this.links = new SequelizeProvider(db.Link, {
+            idColumn: 'user_id'
+        });
         this.items = new ItemsProvider(db.Item);
         this.settings = new SettingsProvider(db.Setting);
         this.cluez = new Cluez();
