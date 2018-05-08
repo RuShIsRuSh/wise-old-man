@@ -50,7 +50,7 @@ module.exports = class ItemCommand extends Command {
 
         if (process.env.CLUE_API) {
             const date = moment().format('DDMMYYYY');
-            embed.setImage(`${process.env.CLUE_API}/items/graph/${details.id}/?x=${date}`);
+            embed.setImage(`${process.env.CLUE_API}/graph/${details.id}/?x=${date}`);
         }
 
         return embed;
