@@ -1,4 +1,5 @@
 const moment = require('moment');
+const request = require('request-promise');
 
 const skills = ['Overall', 'Attack', 'Defence', 'Strength', 'Hitpoints', 'Ranged', 'Prayer',
     'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing',
@@ -38,6 +39,16 @@ exports.findSkills = filter => {
         });
     });
 };
+
+exports.getHiscores = user => {
+    return request({
+        uri: `http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${encodeURIComponent(user)}`
+    });
+}
+
+exports.resolveRsn = input => {
+    
+}
 
 exports.secondsToReadable = seconds => {
     return moment().subtract(seconds, 'seconds').fromNow();

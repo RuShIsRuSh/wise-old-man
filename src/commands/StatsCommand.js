@@ -1,7 +1,7 @@
 const Command = require('../Command');
 const AsciiTable = require('ascii-table');
 const request = require('request-promise');
-const { findSkills } = require('../Utils');
+const { findSkills, getHiscores } = require('../Utils');
 
 class StatsCommand extends Command {
     constructor() {
@@ -24,12 +24,6 @@ class StatsCommand extends Command {
         });
     }
 
-    getStats(user) {
-        return request({
-            uri: `http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${encodeURIComponent(user)}`
-        });
-    }
-
     async exec(message, args) {
         if (!args.name) {
             return message.util.sendEmbed(this.getUsage(message.util.prefix));
@@ -38,7 +32,7 @@ class StatsCommand extends Command {
         let data;
 
         try {
-            data = await this.getStats(args.name);
+            data = await getHiscores(args.name);
         } catch (e) {
             return message.util.reply(`Player ${args.name} not found!`);
         }
