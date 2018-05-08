@@ -46,10 +46,6 @@ exports.getHiscores = user => {
     });
 }
 
-exports.resolveRsn = input => {
-    
-}
-
 exports.secondsToReadable = seconds => {
     return moment().subtract(seconds, 'seconds').fromNow();
 };
