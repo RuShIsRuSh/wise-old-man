@@ -51,7 +51,6 @@ module.exports = class ItemsProvider extends SequelizeProvider {
             parts = flattenDeep(parts);
             parts = compact(parts);
             
-            console.log(parts);
             return parts;
         };
 
@@ -77,7 +76,7 @@ module.exports = class ItemsProvider extends SequelizeProvider {
     async getOsbuddyDetails(id) {
         try {
             const data = await request({
-                uri: `https://api.rsbuddy.com/grandExchange?a=guidePrice&i=${id}`,
+                uri: `https://rsbuddy.com/exchange/graphs/1440/${id}.json`,
                 json: true
             });
 

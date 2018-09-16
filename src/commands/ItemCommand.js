@@ -2,7 +2,7 @@ const Command = require('../Command');
 const AsciiTable = require('ascii-table');
 const moment = require('moment');
 const { RichEmbed } = require('discord.js');
-const { first } = require('lodash');
+const { first, last } = require('lodash');
 
 module.exports = class ItemCommand extends Command {
     constructor() {
@@ -97,7 +97,7 @@ module.exports = class ItemCommand extends Command {
     async showItem(itemId, handle) {
         const item = await this.client.items.getItemDetails(itemId);
         const osbuddy = await this.client.items.getOsbuddyDetails(itemId);
-        return this.getEmbed(item, osbuddy, handle);
+        return this.getEmbed(item, last(osbuddy), handle);
     }
 
     async exec(message, args) {
