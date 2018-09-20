@@ -2,3 +2,4 @@
 - Online players
 - World info
 - Recommended gear suggestions
+- Split StatsCommand into sub commands

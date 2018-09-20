@@ -31,6 +31,8 @@ module.exports = class GnomeClient extends AkairoClient {
         this.links = new SequelizeProvider(db.Link, {
             idColumn: 'user_id'
         });
+
+        this.inventories = new SequelizeProvider(db.Inventory);
         this.items = new ItemsProvider(db.Item);
         this.settings = new SettingsProvider(db.Setting);
         this.cluez = new Cluez();
